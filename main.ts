@@ -1,5 +1,30 @@
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    tiles.placeOnTile(dino, tiles.getTileLocation(2, 10))
+    pause(500)
+    tiles.placeOnTile(dino, tiles.getTileLocation(2, 11))
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
+    sprites.destroy(sprite)
+    info.changeLifeBy(-1)
+})
+controller.A.onEvent(ControllerButtonEvent.Released, function () {
+    tiles.placeOnTile(dino, tiles.getTileLocation(2, 11))
+})
+scene.onOverlapTile(SpriteKind.Projectile, sprites.builtin.brick, function (sprite, location) {
+    console.log("proiectil la destinatie " + sprite + location)
+})
+info.onLifeZero(function () {
+    game.gameOver(false)
+    game.setGameOverMessage(false, "GAME OVER!")
+    game.setGameOverEffect(false, effects.blizzard)
+})
+controller.A.onEvent(ControllerButtonEvent.Repeated, function () {
+    tiles.placeOnTile(dino, tiles.getTileLocation(2, 11))
+})
+let bullet_double: Sprite = null
 let bullet: Sprite = null
-let dino = sprites.create(img`
+let dino: Sprite = null
+dino = sprites.create(img`
     ........................
     ........................
     ...........cc...........
@@ -28,27 +53,30 @@ let dino = sprites.create(img`
 tiles.setCurrentTilemap(tilemap`level4`)
 tiles.placeOnTile(dino, tiles.getTileLocation(2, 11))
 scene.cameraFollowSprite(dino)
-tiles.placeOnRandomTile(bullet, assets.tile`transparency16`)
 let mySprite = sprites.create(img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . . . . . . . . . e 
-    `, SpriteKind.Player)
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    6 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 
+    `, SpriteKind.Projectile)
+tiles.placeOnRandomTile(mySprite, sprites.builtin.brick)
+info.setScore(0)
+info.setLife(1)
 game.onUpdateInterval(1000, function () {
     if (Math.percentChance(50)) {
+        console.log("creating Projectile 0")
         bullet = sprites.create(img`
             . . 6 6 6 6 . . 
             . 6 d 4 4 4 6 . 
@@ -58,8 +86,19 @@ game.onUpdateInterval(1000, function () {
             . . c c c c . . 
             `, SpriteKind.Projectile)
         tiles.placeOnRandomTile(bullet, assets.tile`myTile0`)
-        bullet.setVelocity(0, 50)
+        bullet.setVelocity(50, 0)
+        bullet.follow(mySprite)
     } else {
-    	
+        console.log("creating Projectile 1")
+        bullet_double = sprites.create(img`
+            . . 6 6 6 6 . . 
+            . 6 1 4 4 4 6 . 
+            6 d 4 4 4 4 4 6 
+            c b b 1 1 4 d c 
+            . c b b 4 1 c . 
+            . . c c c c . . 
+            `, SpriteKind.Projectile)
+        tiles.placeOnRandomTile(bullet_double, assets.tile`myTile1`)
+        bullet_double.follow(mySprite)
     }
 })
